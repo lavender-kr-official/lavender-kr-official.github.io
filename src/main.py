@@ -22,6 +22,7 @@ from .config import AppConfig, apply_keyword_filters, load_config
 from .dedup import SeenStore
 from .format_telegram import format_daily_digest
 from .httpio import decode_body, fetch_bytes, redact_secrets
+from .intent import is_postable, priority
 from .models import Item
 from .report import SourceResult, render_report, update_health, verify_sources, write_github_summary
 from .site_build import build_site
@@ -73,8 +74,21 @@ def _notify(cfg: AppConfig, tg: TelegramClient | None, text: str) -> None:
         tg.notify_error(chat_id, text)
 
 
+def _recency(item: Item) -> float:
+    """최신순 정렬용 초 단위 값. 날짜가 없는 소스가 있어 0으로 떨어뜨린다."""
+    dt = item.published_at or item.fetched_at
+    return dt.timestamp() if dt else 0.0
+
+
 def _item_from_row(row: dict) -> Item:
-    """pending 재시도용: seen 테이블 row를 포맷팅 가능한 Item으로 복원."""
+    """pending 재시도용: seen 테이블 row를 포맷팅 가능한 Item으로 복원.
+
+    dedup_key를 반드시 저장된 id로 되돌려야 한다. 복원 Item의 키는 기본값이
+    URL 해시라 DB의 'board:aik_news:8630'과 달라지고, 그러면 발송 뒤
+    mark_posted가 0행을 갱신해 그 항목이 영원히 pending으로 남아 매일 재전송된다.
+    """
+    stored_id = row.get("id") or ""
+    prefix, _, natural = stored_id.rpartition(":")
     return Item(
         source_id=row.get("source_id") or "",
         category=row.get("category") or "news",
@@ -82,6 +96,8 @@ def _item_from_row(row: dict) -> Item:
         url=row.get("url") or "",
         author=row.get("author"),
         extra=row.get("extra") or {},
+        key_prefix=prefix or None,
+        natural_key=natural or None,
     )
 
 
@@ -154,16 +170,24 @@ def run_collect(args: argparse.Namespace) -> int:
         fresh = list(unique.values())
         if not fresh:
             continue
-        fresh.sort(key=lambda it: it.published_at or it.fetched_at)
+        # 명단·위촉 결과는 게시하지 않는다. 지원할 수 없는 정보이고 사람 이름이 섞인다.
+        # 다만 버리지도 않는다 — 기수·임기를 읽어낼 단서라 DB에는 남긴다.
+        roster = [it for it in fresh if not is_postable(it.title)]
+        fresh = [it for it in fresh if is_postable(it.title)]
+
+        # 의도 우선순위 → 최신순. 시간순으로만 자르면 상한이 세미나를 살리고
+        # 위원 모집을 버린다 — 실측(2026-09)에서 실제로 그렇게 됐다.
+        fresh.sort(key=lambda it: (priority(it.title), -_recency(it)))
 
         bootstrap = not store.source_has_rows(source.id)
         cap = BOOTSTRAP_POST_LIMIT if bootstrap else source.max_new_per_run
         if cap <= 0:
             to_post, overflow = [], fresh
         else:
-            to_post, overflow = fresh[-cap:], fresh[:-cap]
+            to_post, overflow = fresh[:cap], fresh[cap:]
         if bootstrap:
-            log.info("'%s' 첫 수집(bootstrap): %d건 중 최신 %d건만 게시", source.id, len(fresh), len(to_post))
+            log.info("'%s' 첫 수집(bootstrap): %d건 중 우선순위 상위 %d건만 게시",
+                     source.id, len(fresh), len(to_post))
 
         if args.dry_run:
             for it in fresh:
@@ -172,6 +196,8 @@ def run_collect(args: argparse.Namespace) -> int:
 
         # 수집분은 게시 성패와 무관하게 즉시 영속화 —
         # to_post는 'pending'(그날 다이제스트 대상), overflow는 사이트에만 노출
+        for it in roster:
+            store.mark_seen(it, status="skipped")
         for it in overflow:
             store.mark_seen(it, status="skipped" if not bootstrap else "seen")
         for it in to_post:
@@ -568,6 +594,47 @@ def run_smoke_stocks(args: argparse.Namespace) -> int:  # noqa: ARG001
     return 0
 
 
+def run_requeue(args: argparse.Namespace) -> int:
+    """묻힌 수집분을 다시 발송 대기(pending)로 돌린다.
+
+    부트스트랩 상한과 시간순 정렬 때문에 실제 위원 모집 공고가 'seen'으로 남아
+    영영 발송되지 않은 일이 있었다(실측 2026-09: 6건 전부). 상한 규칙은 고쳤지만
+    이미 묻힌 행은 스스로 나오지 않으므로 꺼내는 수단이 필요하다.
+    """
+    from .intent import classify_intent
+
+    cfg = load_config()
+    store = SeenStore()
+    rows = store.recent(days=args.days, statuses=("seen", "skipped"))
+    picked = []
+    for row in rows:
+        title = row.get("title") or ""
+        if args.intent and classify_intent(title) != args.intent:
+            continue
+        if args.category and (row.get("category") or "") != args.category:
+            continue
+        picked.append(row)
+    picked = picked[:args.limit]
+
+    if not picked:
+        print(f"최근 {args.days}일에서 되살릴 항목이 없습니다")
+        store.close()
+        return 0
+
+    print(f"{len(picked)}건:")
+    for row in picked:
+        print(f"  [{classify_intent(row.get('title') or '')}] {(row.get('title') or '')[:70]}")
+    if args.dry_run:
+        print("\n--dry-run — 상태를 바꾸지 않았습니다")
+        store.close()
+        return 0
+    for row in picked:
+        store.mark_status(row["id"], "pending")
+    print(f"\n{len(picked)}건을 pending으로 되돌렸습니다 — 다음 collect 실행의 다이제스트에 실립니다")
+    store.close()
+    return 0
+
+
 def run_build_site(args: argparse.Namespace) -> int:  # noqa: ARG001
     cfg = load_config()
     store = SeenStore()
@@ -600,6 +667,15 @@ def main(argv: list[str] | None = None) -> int:
     p_draft.set_defaults(func=run_blog_draft)
 
     sub.add_parser("build-site", help="site/ 재생성").set_defaults(func=run_build_site)
+
+    p_requeue = sub.add_parser("requeue", help="묻힌 수집분을 다시 발송 대기로 되돌린다")
+    p_requeue.add_argument("--days", type=int, default=30)
+    p_requeue.add_argument("--intent", default="recruit",
+                           help="recruit|competition|event|other|roster (빈 값이면 전체)")
+    p_requeue.add_argument("--category", default="")
+    p_requeue.add_argument("--limit", type=int, default=30)
+    p_requeue.add_argument("--dry-run", action="store_true")
+    p_requeue.set_defaults(func=run_requeue)
 
     p_preview = sub.add_parser(
         "digest-preview", help="최근 수집분으로 다이제스트를 만들어 스테이징에 전송 (상태 변경 없음)")

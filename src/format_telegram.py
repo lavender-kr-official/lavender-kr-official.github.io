@@ -4,6 +4,7 @@ from __future__ import annotations
 import re
 
 from .models import Item
+from .intent import COMPETITION, RECRUIT, ROSTER, classify_intent
 from .topics import classify, topic_order
 
 TG_LIMIT = 4096  # 텔레그램 메시지 한도 (참고용, 실제 경계는 SAFE_LIMIT)
@@ -51,15 +52,34 @@ DIGEST_TITLE_MAX = 90
 BID_MIN_AMOUNT = 1_000_000_000
 BID_MIN_LABEL = "10억"
 
-# 섹션 순서 = 독자 가치 순. 위원회 모집은 다른 데서 찾기 어려운 정보라 맨 앞.
+# 섹션 순서 = 독자 가치 순. 위원 모집은 다른 데서 찾기 어려운 정보라 맨 앞이고
+# 상한을 두지 않는다 — 실측에서 상한이 세미나를 살리고 위원 모집을 버렸다.
 DIGEST_SECTIONS = (
-    ("committee", "👥 위원회 모집", None),
+    ("recruit", "👥 위원 모집", None),
     ("bid", f"📋 입찰공고 (추정가 {BID_MIN_LABEL} 이상)", 12),
+    ("competition", "🏗 설계공모", 8),
     ("gov", "🏢 정책", 10),
     ("association", "🏛 협회 소식", 10),
     ("news", "📰 뉴스", 30),
     ("youtube", "🎬 영상", 5),
 )
+
+
+def section_of(item: Item) -> str:
+    """항목이 들어갈 다이제스트 구획. committee만 제목 의도로 다시 가른다.
+
+    협회 게시판 하나에 위원 모집·설계공모·세미나가 뒤섞여 들어온다. 한 구획에
+    몰아두면 정작 지원할 수 있는 공고가 세미나 안내에 묻힌다.
+    """
+    category = item.category or "news"
+    if category != "committee":
+        return category
+    intent = classify_intent(item.title or "")
+    if intent == RECRUIT:
+        return "recruit"
+    if intent == COMPETITION:
+        return "competition"
+    return "association"  # 세미나·행사·기타 협회 소식
 
 
 _AMOUNT_DIGITS_RE = re.compile(r"[\d,]+")
@@ -233,8 +253,11 @@ def format_daily_digest(items: list[Item], day, site_url: str = "",
         blocks.extend(format_quotes(*quotes))
     total = 0
 
+    # 명단·위촉 결과는 여기까지 오지 않아야 하지만, 예전에 수집된 행이
+    # 미리보기로 흘러들 수 있어 표시 단계에서도 한 번 더 막는다.
+    items = [it for it in items if classify_intent(it.title or "") != ROSTER]
     for category, label, cap in DIGEST_SECTIONS:
-        bucket = [it for it in items if (it.category or "news") == category]
+        bucket = [it for it in items if section_of(it) == category]
         if category == "bid":
             bucket = _select_bids(bucket)
         if not bucket:

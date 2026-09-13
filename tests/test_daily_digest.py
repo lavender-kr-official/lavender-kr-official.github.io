@@ -24,9 +24,10 @@ def test_empty_input_produces_no_message():
 
 
 def test_sections_ordered_by_reader_value():
-    items = [item("news", "뉴스"), item("bid", "입찰"), item("committee", "위원회")]
+    items = [item("news", "뉴스"), item("bid", "입찰"),
+             item("committee", "창원시 도시계획위원회 위원 공개모집")]
     body = "\n".join(format_daily_digest(items, DAY))
-    assert body.index("위원회 모집") < body.index("입찰공고") < body.index("뉴스")
+    assert body.index("위원 모집") < body.index("입찰공고") < body.index("뉴스")
 
 
 def test_item_without_metadata_has_no_empty_meta_line():
@@ -64,7 +65,8 @@ def test_bid_section_cap():
 
 
 def test_committee_section_is_uncapped():
-    items = [item("committee", f"위원회{i}") for i in range(40)]
+    """위원 모집만은 상한을 두지 않는다 — 상한이 이 구획을 자르면 존재 이유가 없다."""
+    items = [item("committee", f"제{i}기 기술자문위원회 위원 공개모집") for i in range(40)]
     body = "\n".join(format_daily_digest(items, DAY))
     assert body.count("▶️") == 40 and "외 " not in body
 
@@ -77,7 +79,8 @@ def test_title_is_the_link_and_html_is_escaped():
 
 
 def test_splits_across_messages_within_telegram_limit():
-    items = [item("committee", f"아주 긴 위원회 공고 제목입니다 {i}" * 4) for i in range(200)]
+    items = [item("committee", f"아주 긴 기술자문위원 공개모집 공고 제목입니다 {i}" * 4)
+             for i in range(200)]
     msgs = format_daily_digest(items, DAY)
     assert len(msgs) > 1
     assert all(len(m) <= 4096 for m in msgs)
@@ -199,3 +202,50 @@ def test_parse_won():
     assert parse_won("1,234,000,000원") == 1234000000
     assert parse_won("미상") is None
     assert parse_won("") is None
+
+
+# ── 의도별 구획 분리 (실측 2026-09: 위원 모집이 세미나에 묻혔다) ──────────────
+
+from src.format_telegram import section_of  # noqa: E402
+
+
+def _c(title, source="aik_news"):
+    return Item(source_id=source, category="committee", title=title,
+                url=f"https://ex.com/{abs(hash(title)) % 9999}", author="대한건축학회")
+
+
+def test_committee_board_is_split_by_intent():
+    assert section_of(_c("창원시 도시계획위원회 위원 공개모집 안내")) == "recruit"
+    assert section_of(_c("『가납초 학교복합시설 구축사업 』 건축설계공모")) == "competition"
+    assert section_of(_c("제10회 스마트건설교류회 세미나 개최")) == "association"
+
+
+def test_other_categories_keep_their_section():
+    assert section_of(Item(source_id="ikld", category="news", title="x", url="u")) == "news"
+    assert section_of(Item(source_id="g2b", category="bid", title="x", url="u")) == "bid"
+
+
+def test_recruitment_leads_the_digest():
+    items = [
+        _c("제10회 스마트건설교류회 세미나 개최 (10/14)"),
+        _c("『가납초 학교복합시설 구축사업 』 건축설계공모"),
+        _c("창원시 도시계획위원회 위원 공개모집 안내"),
+    ]
+    text = "\n".join(format_daily_digest(items, date(2026, 9, 13), ""))
+    assert text.index("위원 모집") < text.index("설계공모") < text.index("협회 소식")
+
+
+def test_roster_never_reaches_the_digest():
+    """명단은 지원할 수 없는 정보이고 사람 이름이 섞인다."""
+    items = [
+        _c("'가덕도신공항 부지조성공사' 일괄입찰 설계심의위원 명단"),
+        _c("창원시 도시계획위원회 위원 공개모집 안내"),
+    ]
+    text = "\n".join(format_daily_digest(items, date(2026, 9, 13), ""))
+    assert "명단" not in text
+    assert "창원시" in text
+
+
+def test_a_digest_of_only_rosters_is_not_sent():
+    items = [_c("제3기 건설엔지니어링 종합심사낙찰제 심사위원회 위원 명단(2026.9.4 기준)")]
+    assert format_daily_digest(items, date(2026, 9, 13), "") == []

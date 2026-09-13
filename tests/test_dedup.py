@@ -91,3 +91,21 @@ def test_mark_status_removes_from_pending(tmp_path):
     assert store.pending() == []          # 재시도 큐에서 빠짐
     assert store.is_seen(item.dedup_key)  # 중복 재수집은 여전히 차단
     store.close()
+
+
+def test_restored_row_keeps_its_stored_key(tmp_path):
+    """복원 Item의 키가 저장된 id와 달라지면 mark_posted가 0행을 갱신하고,
+    그 항목은 영원히 pending으로 남아 매일 재전송된다."""
+    from src.main import _item_from_row
+
+    store = SeenStore(tmp_path / "t.db")
+    it = Item(source_id="aik_news", category="committee", title="창원시 도시계획위원회 위원 공개모집",
+              url="https://ex.com/8630", natural_key="8630", key_prefix="board:aik_news")
+    store.mark_seen(it, status="pending")
+
+    restored = _item_from_row(store.pending()[0])
+    assert restored.dedup_key == it.dedup_key
+
+    store.mark_posted(restored.dedup_key, 42)
+    assert store.pending() == []
+    store.close()
