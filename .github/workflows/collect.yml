@@ -11,7 +11,7 @@ on:
         description: 실행할 커맨드
         type: choice
         default: collect
-        options: [collect, verify-sources, smoke-g2b, smoke-stocks, blog-draft, build-site, digest-preview, probe]
+        options: [collect, verify-sources, smoke-g2b, smoke-stocks, blog-draft, build-site, digest-preview, requeue, probe]
       sources:
         description: "collect: 콤마 구분 소스 id 필터 / probe: 진단할 URL 또는 소스 id"
         required: false
