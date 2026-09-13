@@ -390,8 +390,12 @@ def _probe_source(source, cfg, out: list[str]) -> None:
             method = (o.get("method") or "GET").upper()
             data = ({k: str(v).replace("{page}", "1") for k, v in (o.get("form_data") or {}).items()}
                     if method == "POST" else None)
-            content, charset = fetch_bytes(url, timeout=source.timeout, method=method, data=data,
-                                           verify_tls=bool(o.get("verify_tls", True)))
+            if bool(o.get("via_curl", False)) and method == "GET":
+                from .httpio import fetch_via_curl
+                content, charset = fetch_via_curl(url, timeout=source.timeout), None
+            else:
+                content, charset = fetch_bytes(url, timeout=source.timeout, method=method, data=data,
+                                               verify_tls=bool(o.get("verify_tls", True)))
             html = decode_body(content, charset, o.get("encoding", "auto"))
             soup = BeautifulSoup(html, "html.parser")
             rows = soup.select(o.get("row_selector", ""))
@@ -400,15 +404,34 @@ def _probe_source(source, cfg, out: list[str]) -> None:
             for row in rows[:3]:
                 out.append("--- 매칭 행 ---")
                 out.append(str(row)[:700])
-            if not rows:
+            # 셀렉터가 몇 행을 잡았는지보다, 실제로 Item이 나오는지가 판정 기준이다.
+            # 폼 테이블 한 줄을 잡고 "1행 매칭"이라 보고하면 성공으로 오해하기 쉽다.
+            from .collectors.board import parse_list_page
+            try:
+                items = parse_list_page(html, source, base_url=url)
+            except Exception as exc:  # noqa: BLE001
+                out.append(f"파싱 실패: {exc}")
+                items = []
+            out.append(f"--- parse_list_page 결과: {len(items)}건 ---")
+            for it in items[:10]:
+                meta = " · ".join(f"{k}={v}" for k, v in (it.extra or {}).items())
+                out.append(f"  {it.title[:60]} | {it.url[:110]}{' | ' + meta if meta else ''}")
+
+            if len(items) < 5:
+                # 어느 테이블을 겨냥해야 하는지 한눈에 보이게 — 셀렉터를 고칠 때 쓴다
+                out.append("--- 테이블 목록 (행수 · class/id · 헤더) ---")
+                for i, tbl in enumerate(soup.find_all("table")[:15]):
+                    trs = tbl.find_all("tr")
+                    heads = [th.get_text(" ", strip=True)[:14] for th in tbl.find_all("th")[:8]]
+                    links = len(tbl.find_all("a"))
+                    out.append(f"  table[{i}] tr={len(trs)} a={links} "
+                               f"class={tbl.get('class')!r} id={tbl.get('id')!r} 헤더={heads}")
                 out.append(f"구조 힌트: table={len(soup.find_all('table'))} ul={len(soup.find_all('ul'))} "
                            f"li={len(soup.find_all('li'))} a={len(soup.find_all('a'))}")
                 out.append("--- a 태그 샘플 (최대 40) ---")
                 for a in soup.find_all("a")[:40]:
                     out.append(f"  href={a.get('href')!r} onclick={a.get('onclick')!r} "
                                f"class={a.get('class')!r} | {a.get_text(' ', strip=True)[:60]}")
-                out.append("--- HTML 앞부분 ---")
-                out.append(html[:3000])
         else:
             items = COLLECTORS[source.type](source, ctx)
             out.append(f"{source.type} '{source.id}': {len(items)}건 수집")

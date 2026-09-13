@@ -206,3 +206,54 @@ def test_list_page_prefers_the_writer_column_over_the_title_tag():
     items = parse_list_page(html, source, "https://ex.com/board/")
     assert items[0].extra["org"] == "재정경제부"
     assert items[0].title == "위원 공개모집"
+
+
+def test_via_curl_is_used_for_servers_that_drop_httpx(monkeypatch):
+    """'Server disconnected' 내는 구형 서버용 우회 경로 — GET에만 적용된다."""
+    from src.collectors import board as board_mod
+    from src.config import SourceConfig
+
+    calls = {"curl": 0, "httpx": 0}
+    monkeypatch.setattr(board_mod, "fetch_via_curl",
+                        lambda url, **kw: (calls.__setitem__("curl", calls["curl"] + 1),
+                                           b"<table><tr><td><a href='/v?id=7'>\xea\xb3\xb5\xea\xb3\xa0</a></td></tr></table>")[1])
+    monkeypatch.setattr(board_mod, "fetch_bytes",
+                        lambda *a, **k: (calls.__setitem__("httpx", calls["httpx"] + 1), (b"", None))[1])
+    monkeypatch.setattr(board_mod, "can_fetch", lambda *a, **k: True)
+    monkeypatch.setattr(board_mod, "wait_for_host", lambda *a, **k: None)
+
+    source = SourceConfig(
+        id="old", name="구형", type="board", category="committee",
+        options={"list_url": "https://ex.com/l", "via_curl": True,
+                 "row_selector": "tr:has(a)", "url_base": "https://ex.com/",
+                 "fields": {"title": {"selector": "a", "attr": "text"},
+                            "link": {"selector": "a", "attr": "href"}}},
+    )
+    items = board_mod.collect(source, None)
+    assert calls == {"curl": 1, "httpx": 0}
+    assert len(items) == 1
+
+
+def test_via_curl_is_ignored_for_post_boards(monkeypatch):
+    """curl 경로는 폼 전송을 하지 않는다 — POST 게시판에 쓰면 조용히 빈 목록이 된다."""
+    from src.collectors import board as board_mod
+    from src.config import SourceConfig
+
+    calls = {"curl": 0, "httpx": 0}
+    monkeypatch.setattr(board_mod, "fetch_via_curl",
+                        lambda url, **kw: (calls.__setitem__("curl", calls["curl"] + 1), b"")[1])
+    monkeypatch.setattr(board_mod, "fetch_bytes",
+                        lambda *a, **k: (calls.__setitem__("httpx", calls["httpx"] + 1),
+                                         (b"<table></table>", None))[1])
+    monkeypatch.setattr(board_mod, "can_fetch", lambda *a, **k: True)
+    monkeypatch.setattr(board_mod, "wait_for_host", lambda *a, **k: None)
+
+    source = SourceConfig(
+        id="p", name="폼", type="board", category="committee",
+        options={"list_url": "https://ex.com/l", "via_curl": True, "method": "POST",
+                 "form_data": {"pageIndex": "{page}"}, "row_selector": "tr:has(a)",
+                 "fields": {"title": {"selector": "a", "attr": "text"},
+                            "link": {"selector": "a", "attr": "href"}}},
+    )
+    board_mod.collect(source, None)
+    assert calls == {"curl": 0, "httpx": 1}

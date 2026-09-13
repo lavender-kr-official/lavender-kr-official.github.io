@@ -8,6 +8,7 @@ sources.yaml 예:
       form_data: {}          # POST 파라미터 ({page} 치환 지원)
       encoding: auto         # auto | euc-kr | utf-8 ...
       verify_tls: true
+      via_curl: false        # httpx가 TLS 협상에 실패하는 구형 서버용 (GET 전용)
       row_selector: "table.board tr:has(a)"
       skip_rows: 0
       url_base: "https://.../"          # 상대 href resolve 기준 (기본: list_url)
@@ -32,7 +33,7 @@ from urllib.parse import urljoin
 from bs4 import BeautifulSoup
 
 from ..config import SourceConfig
-from ..httpio import decode_body, fetch_bytes, normalize_url
+from ..httpio import decode_body, fetch_bytes, fetch_via_curl, normalize_url
 from ..robots import can_fetch, wait_for_host
 from ..models import Item
 from .base import CollectError, RunContext
@@ -196,6 +197,9 @@ def collect(source: SourceConfig, ctx: RunContext) -> list[Item]:
     encoding = cfg.get("encoding", "auto")
     verify_tls = bool(cfg.get("verify_tls", True))
     respect_robots = bool(cfg.get("respect_robots", True))
+    # 구형 서버 일부는 httpx의 TLS 협상을 끊어버린다("Server disconnected") —
+    # 나라장터에서 검증된 curl 경로를 게시판에도 열어둔다. GET에만 의미가 있다.
+    via_curl = bool(cfg.get("via_curl", False)) and method == "GET"
     if not verify_tls:
         log.warning("'%s': TLS 검증 비활성 (구형 인증서 사이트)", source.id)
 
@@ -217,10 +221,13 @@ def collect(source: SourceConfig, ctx: RunContext) -> list[Item]:
         if respect_robots:
             wait_for_host(url)
         try:
-            content, charset = fetch_bytes(
-                url, timeout=source.timeout, verify_tls=verify_tls,
-                method=method, data=form_data,
-            )
+            if via_curl:
+                content, charset = fetch_via_curl(url, timeout=source.timeout), None
+            else:
+                content, charset = fetch_bytes(
+                    url, timeout=source.timeout, verify_tls=verify_tls,
+                    method=method, data=form_data,
+                )
         except Exception as exc:  # noqa: BLE001
             raise CollectError(f"'{source.id}' p{page} 요청 실패: {exc}") from exc
         html = decode_body(content, charset, encoding)

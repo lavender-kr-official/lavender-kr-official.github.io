@@ -134,6 +134,7 @@ sources:
     board:
       list_url: "https://www.ksce.or.kr/not/Default.asp?gbn=10&ctop=MN0096&htop=MN0031&ptop=MN0031&page={page}"
       pages: 1
+      via_curl: true           # 실측(2026-09): httpx는 45초에도 무응답 — curl 경로로 재시도
       encoding: auto           # 구형 ASP — 실측 시 euc-kr로 고정 가능
       row_selector: "table tr:has(a)"
       skip_rows: 0
@@ -202,6 +203,7 @@ sources:
     board:
       list_url: "https://www.kpea.or.kr/kpea/recom/RecomList.do?leftMenuCode=member&menu=08&sub=01"
       pages: 1
+      via_curl: true           # 실측(2026-09): httpx에 "Server disconnected" — TLS 협상 거부
       row_selector: "table tr:has(a)"
       url_base: "https://www.kpea.or.kr/kpea/recom/"
       id_pattern: "(\\d+)"
