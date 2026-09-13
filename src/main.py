@@ -544,14 +544,28 @@ def run_smoke_stocks(args: argparse.Namespace) -> int:  # noqa: ARG001
     want_kr = len(cfg.stocks.get("kr") or [])
     want_us = len(cfg.stocks.get("us") or [])
     summary = f"국내 {len(kr)}/{want_kr}종목, 미국 {len(us)}/{want_us}종목 조회 성공"
+
+    # 다음에 할 일을 결과에 같이 적는다 — 표만 보고 무엇이 빠졌는지 알기 어렵다
+    todo: list[str] = []
+    if want_kr and not kr:
+        todo.append("국내: data.go.kr에서 '금융위원회_주식시세정보'(15094808) 활용신청 "
+                    "— DATA_GO_KR_KEY는 그대로 쓴다 (docs/setup-datago.md)")
+    if want_us and not us:
+        todo.append("미국: finnhub.io 무료 가입 후 FINNHUB_API_KEY Secret 등록")
+
     body = summary + "\n\n" + "\n".join(lines)
+    if todo:
+        body += "\n\n할 일\n" + "\n".join(f"- {t}" for t in todo)
     if errors:
         body += "\n\n실패 사유\n" + "\n".join(f"- {e}" for e in errors)
     print(body)
     write_github_summary(f"# smoke-stocks\n\n{body}")
     write_run_log("smoke-stocks", body)
-    # 한쪽이라도 비면 설정이 덜 끝난 것 — 실패로 알린다
-    return 0 if (kr or not want_kr) and (us or not want_us) else 1
+    # 진단 커맨드는 워크플로를 실패시키지 않는다.
+    # '키가 아직 없음'은 정상적인 설정 단계이지 고장이 아니다 — 실패로 알리면
+    # "All jobs have failed" 메일이 날아가고, 진짜 고장 났을 때 무시하게 된다.
+    # 판정은 위 표와 '할 일'을 사람이 읽는다.
+    return 0
 
 
 def run_build_site(args: argparse.Namespace) -> int:  # noqa: ARG001

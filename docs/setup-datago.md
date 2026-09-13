@@ -65,7 +65,10 @@ Actions → collect → Run workflow → command: **smoke-stocks**
 | `국내 0/7` | 주식시세정보 활용신청 미승인(또는 동기화 지연 1시간) |
 | `미국 0/6` | `FINNHUB_API_KEY` 미등록 또는 키 오류 |
 
-실패 시 종목별 사유가 `state/probe-latest.txt`에 함께 기록됩니다.
+실패 시 종목별 사유와 '할 일'이 `state/probe-latest.txt`에 함께 기록됩니다.
+**smoke-stocks는 어떤 결과가 나와도 워크플로를 실패시키지 않습니다** — 키가 아직 없는 건
+설정 단계이지 고장이 아니고, 실패로 알리면 진짜 고장 났을 때 메일을 무시하게 되기 때문입니다.
+판정은 위 표를 읽고 하시면 됩니다.
 
 ## 3. 종목을 바꾸려면
 `config/sources.yaml`의 `stocks:` 블록만 고치면 됩니다. 코드 수정 불필요.
