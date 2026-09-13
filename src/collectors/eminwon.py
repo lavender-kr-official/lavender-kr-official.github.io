@@ -20,6 +20,7 @@ from bs4 import BeautifulSoup
 
 from ..config import SourceConfig
 from ..httpio import decode_body, fetch_bytes
+from ..robots import can_fetch, wait_for_host
 from ..models import Item
 from .base import CollectError, RunContext
 
@@ -91,10 +92,21 @@ def collect(source: SourceConfig, ctx: RunContext) -> list[Item]:
     form = default_form(se_codes, page_size)
     form.update({k: str(v) for k, v in (cfg.get("form_data") or {}).items()})
     url = f"https://{host}{list_path}"
+    # 지자체 수백 곳으로 늘어날 수집기다 — board와 같은 규칙을 지켜야 한다.
+    # 사이트가 거부하면 조용히 건너뛰지 않고 알린다: 정책 변경은 사람이 봐야 한다.
+    respect_robots = bool(cfg.get("respect_robots", True))
+    verify_tls = bool(cfg.get("verify_tls", True))
+    if respect_robots:
+        if not can_fetch(url, verify_tls=verify_tls):
+            raise CollectError(
+                f"'{source.id}': robots.txt가 수집을 금지함 ({host}). "
+                "소스를 비활성화하거나 eminwon.respect_robots: false로 명시적으로 해제할 것"
+            )
+        wait_for_host(url)
     try:
         content, charset = fetch_bytes(
             url, timeout=source.timeout, method="POST", data=form,
-            verify_tls=bool(cfg.get("verify_tls", True)),
+            verify_tls=verify_tls,
         )
     except Exception as exc:  # noqa: BLE001
         raise CollectError(f"'{source.id}' 요청 실패: {exc}") from exc
