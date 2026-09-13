@@ -1,33 +1,5 @@
-# probe: ksce_external, kpea_recom, calspia_turnkey, lh_notice, eminwon_gijang
+# probe: lh_notice, calspia_turnkey, kpea_recom, ksce_external
 
-
-===== ksce_external =====
-실패: timed out
-
-===== kpea_recom =====
-실패: Server disconnected without sending a response.
-
-===== calspia_turnkey =====
-https://www.calspia.go.kr/portal/turnkey/selectDlbMocRcrPanMng.do → 45421 bytes, charset=utf-8
-row_selector='table tr:has(a)' → 1행 매칭
---- 매칭 행 ---
-<tr>
-<th>주관기관</th>
-<td>
-<label for="srchDlbOrgNm">주관기관</label>
-<input class="base w70" id="srchDlbOrgNm" placeholder="주관기관" style="float:left;" type="text" value=""/>
-</td>
-<th>모집 마감일</th>
-<td>
-<label for="srchStartRcrClsDt">모집마감일 시작</label>
-<input class="base w30" id="srchStartRcrClsDt" readonly="readonly" type="text" value=""/>
-<a id="srchStartRcrClsDtCal"><img alt="달력" id="img_fr1" src="../images/sub/btn_calendar.png"/></a>
-		             ~ 
-	    			<label for="srchEndRcrClsDt">모집마감일 끝</label>
-<input class="base w30" id="srchEndRcrClsDt" readonly="readonly" type="text" value=""/>
-<a id="srchEndRcrClsDtCal"><img alt="달력" id="img_fr2" src="../images/sub/btn_calendar.png"/></a>
-</td>
-<th>제
 
 ===== lh_notice =====
 https://www.lh.or.kr/board.es?mid=a10501010000&bid=0033&nPage=1 → 111618 bytes, charset=utf-8
@@ -207,16 +179,91 @@ row_selector='table tr:has(a)' → 12행 매칭
 <td aria-label="분류">알림</td>
 <td aria-label="제목" class="txt_left">
 <a href="#none" onclick="goView3('733891','/board.es?mid=a10501010000&amp;bid=0033&amp;act=view&amp;list_no=733891&amp;tag=&amp;nPage=1'); return false;"> <i class="xi-new"></i><s
+--- parse_list_page 결과: 12건 ---
+  직원 사칭 사기 주의 안내 | https://www.lh.or.kr/board.es?act=view&bid=0033&list_no=726263&mid=&nPage=1
+  분당오리사옥(現경기남부본부, 성남대로54번길 3) 매수 사칭 사기 주의 | https://www.lh.or.kr/board.es?act=view&bid=0033&list_no=732549&mid=&nPage=1
+  새글 2026년도 수급조절용 비축토지 매입 공고 | https://www.lh.or.kr/
+  새글 2026년 재난대응 안전한국훈련 시행 알림 | https://www.lh.or.kr/
+  건설공사 하도급계약현황 안내 | https://www.lh.or.kr/
+  토지해약 반환시 적용이자율 알림(2026.9월) | https://www.lh.or.kr/
+  2026년 하반기「주택매매 오픈마켓」주택매입 사업설명회 개최 안내 | https://www.lh.or.kr/
+  2026년 9월 국민임대주택 예비입주자 통합정례모집 사전안내 | https://www.lh.or.kr/
+  지방 준공 후 미분양 아파트 매입공고(4차) 안내 | https://www.lh.or.kr/
+  한국토지주택공사 상임감사위원 공모 | https://www.lh.or.kr/
 
-===== eminwon_gijang =====
-eminwon 'eminwon_gijang': 30건 수집
-  emw:eminwon.gijang.go.kr:52677 | 도로명주소 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52677
-  emw:eminwon.gijang.go.kr:52593 | 기장 내동마을 지구단위계획도로(소로3-251호선) 개설공사  실시계획 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52593
-  emw:eminwon.gijang.go.kr:52647 | 자동차 공매 공고 [기장군 공고 제2026-1709호] | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52647
-  emw:eminwon.gijang.go.kr:52637 | 도로명주소 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52637
-  emw:eminwon.gijang.go.kr:52628 | 지적기준점(지적삼각보조점, 도근점) 측량성과 폐기 고시 건의 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52628
-  emw:eminwon.gijang.go.kr:52585 | 월전마을 지구단위계획도로(소1-92호선)개설공사 실시계획(변경) 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52585
-  emw:eminwon.gijang.go.kr:52576 | 도시계획시설(도로:소로 1-145호선)사업 실시계획(경미한 변경) 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52576
-  emw:eminwon.gijang.go.kr:52600 | 공유수면 점용·사용 (변경)허가(협의) 및 실시계획 승인사항(준공검사 실시사항) 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52600
-  emw:eminwon.gijang.go.kr:52534 | 장안 좌천마을 도시계획시설사업(도로: 소2-719호선) 실시계획(변경) 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52534
-  emw:eminwon.gijang.go.kr:52482 | 도시계획시설사업(체육시설, 도로) 실시계획인가(변경) 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52482
+===== calspia_turnkey =====
+https://www.calspia.go.kr/portal/turnkey/selectDlbMocRcrPanMng.do → 45421 bytes, charset=utf-8
+row_selector='table tr:has(a)' → 1행 매칭
+--- 매칭 행 ---
+<tr>
+<th>주관기관</th>
+<td>
+<label for="srchDlbOrgNm">주관기관</label>
+<input class="base w70" id="srchDlbOrgNm" placeholder="주관기관" style="float:left;" type="text" value=""/>
+</td>
+<th>모집 마감일</th>
+<td>
+<label for="srchStartRcrClsDt">모집마감일 시작</label>
+<input class="base w30" id="srchStartRcrClsDt" readonly="readonly" type="text" value=""/>
+<a id="srchStartRcrClsDtCal"><img alt="달력" id="img_fr1" src="../images/sub/btn_calendar.png"/></a>
+		             ~ 
+	    			<label for="srchEndRcrClsDt">모집마감일 끝</label>
+<input class="base w30" id="srchEndRcrClsDt" readonly="readonly" type="text" value=""/>
+<a id="srchEndRcrClsDtCal"><img alt="달력" id="img_fr2" src="../images/sub/btn_calendar.png"/></a>
+</td>
+<th>제
+--- parse_list_page 결과: 0건 ---
+--- 테이블 목록 (행수 · class/id · 헤더) ---
+  table[0] tr=1 a=2 class=['common_tbl'] id=None 헤더=['주관기관', '모집 마감일', '제목']
+  table[1] tr=0 a=0 class=None id='list2' 헤더=[]
+  table[2] tr=0 a=0 class=None id='list' 헤더=[]
+구조 힌트: table=3 ul=23 li=90 a=99
+--- a 태그 샘플 (최대 40) ---
+  href='#allMenuOpen' onclick=None class=None | 주메뉴 바로가기
+  href='#work_detail' onclick=None class=None | 본문 바로가기
+  href='' onclick=None class=['sess_overlay'] | 
+  href='' onclick=None class=['sesspopclose'] | 
+  href='/portal/' onclick=None class=['blind'] | 건설사업정보시스템
+  href='javascript:viewPopHelp();' onclick=None class=None | 
+  href='/portal/' onclick=None class=None | 로그인
+  href='/portal/member/memberGnrCerti.do' onclick=None class=None | 회원가입
+  href='#allMenuOpen' onclick=None class=['all_menu_open'] | 전체메뉴 열기
+  href='/cpermit/cap/infor/inf101_4v.jsp?permit_cd=D130' onclick=None class=None | 민원안내
+  href='/portal/ofldc/ofldcMain.do' onclick=None class=None | 나의민원
+  href='/cpermit/cap/rtvpermit/rtv103l.jsp' onclick=None class=None | 민원공개
+  href='/portal/ve/selectVeInputStat.do' onclick=None class=None | 설계VE마당
+  href='/portal/expostEval/selectPsevTargetBusinessList.do' onclick=None class=None | 건설공사사후평가(개정)
+  href='/portal/expostEval/ceeProjectStat.do' onclick=None class=None | 건설공사사후평가
+  href='/portal/turnkey/systemInfoNGoal.do' onclick=None class=None | 온라인턴키마당
+  href='/portal/costDownCase/selectCostDownCaseList.do' onclick=None class=None | 건설공사 원가절감사례
+  href='/portal/tech/selectConstGlossaryList.do' onclick=None class=None | 건설기술정보
+  href='/portal/tech/popup/selectMolitNewTechPRList.do' onclick=None class=None | 건설신기술정보
+  href='/portal/stat/selectMolitRoadProjStat.do?siteOwnerCd=PTL' onclick=None class=None | 도로 공사정보
+  href='/io/index.do' onclick=None class=None | 정보공개
+  href='/portal/cnpp/cnppIndex.do' onclick=None class=None | 건설신기술ㆍ특허 플랫폼
+  href='/portal/bbs/selectPolicyList.do' onclick=None class=None | 정책동향
+  href='/portal/bbs/selectTrend01List.do' onclick=None class=None | 국토교통동향
+  href='/portal/law/selectCalsLawList.do' onclick=None class=None | 건설법령
+  href='/portal/stat/selectCmsTotalProjStat.do' onclick=None class=None | 건설사업정보현황
+  href='/portal/bbs/selectNoticeList.do' onclick=None class=None | 공지사항
+  href='/portal/data/selectConstructionStandardList.do' onclick=None class=None | 통합자료실
+  href='/cpermit/cap/appmain/app601l.jsp' onclick=None class=None | 민원처리공개
+  href='/cpermit/cap/rtvpermit/rtv101l.jsp' onclick=None class=None | 허가내용공고
+  href='/portal/qna/selectQnaList.do' onclick=None class=None | Q&A
+  href='/portal/bbs/selectFAQList.do' onclick=None class=None | FAQ
+  href='/portal/intro/introCALS.do' onclick=None class=None | 건설사업정보화(CALS) 란?
+  href='/portal/intro/introCms.do' onclick=None class=None | 건설사업정보시스템
+  href='/portal/intro/introStandard00.do' onclick=None class=None | 건설정보표준
+  href='javascript:goGIS();' onclick=None class=None | 지도정보
+  href='#' onclick=None class=['lv1'] | 인허가
+  href='/cpermit/cap/infor/inf101_4v.jsp?permit_cd=D130' onclick=None class=None | 민원안내
+  href='/portal/ofldc/ofldcMain.do' onclick=None class=None | 나의민원
+  href='/cpermit/cap/rtvpermit/rtv103l.jsp' onclick=None class=None | 민원공개
+
+===== kpea_recom =====
+실패: curl exit 52: curl: (52) Empty reply from server
+
+
+===== ksce_external =====
+실패: curl exit 28: curl: (28) Connection timed out after 45001 milliseconds
+
