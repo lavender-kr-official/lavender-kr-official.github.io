@@ -1,28 +1,222 @@
-# smoke-stocks
+# probe: ksce_external, kpea_recom, calspia_turnkey, lh_notice, eminwon_gijang
 
-국내 0/7종목, 미국 0/6종목 조회 성공
 
-| 구분 | 종목 | 종가 | 등락 | 기준일 |
-|---|---|---|---|---|
+===== ksce_external =====
+실패: timed out
 
-실패 사유
-- 국내 000720: curl exit 22: curl: (22) The requested URL returned error: 403
- | 응답본문: { "OpenAPI_ServiceResponse": { "cmmMsgHeader": { "errMsg": "SERVICE_KEY_IS_NOT_REGISTERED_ERROR", "returnAuthMsg": "등록되지 않은 서비스키
-- 국내 028260: curl exit 22: curl: (22) The requested URL returned error: 403
- | 응답본문: { "OpenAPI_ServiceResponse": { "cmmMsgHeader": { "errMsg": "SERVICE_KEY_IS_NOT_REGISTERED_ERROR", "returnAuthMsg": "등록되지 않은 서비스키
-- 국내 375500: curl exit 22: curl: (22) The requested URL returned error: 403
- | 응답본문: { "OpenAPI_ServiceResponse": { "cmmMsgHeader": { "errMsg": "SERVICE_KEY_IS_NOT_REGISTERED_ERROR", "returnAuthMsg": "등록되지 않은 서비스키
-- 국내 006360: curl exit 22: curl: (22) The requested URL returned error: 403
- | 응답본문: { "OpenAPI_ServiceResponse": { "cmmMsgHeader": { "errMsg": "SERVICE_KEY_IS_NOT_REGISTERED_ERROR", "returnAuthMsg": "등록되지 않은 서비스키
-- 국내 047040: curl exit 22: curl: (22) The requested URL returned error: 403
- | 응답본문: { "OpenAPI_ServiceResponse": { "cmmMsgHeader": { "errMsg": "SERVICE_KEY_IS_NOT_REGISTERED_ERROR", "returnAuthMsg": "등록되지 않은 서비스키
-- 국내 028050: curl exit 22: curl: (22) The requested URL returned error: 403
- | 응답본문: { "OpenAPI_ServiceResponse": { "cmmMsgHeader": { "errMsg": "SERVICE_KEY_IS_NOT_REGISTERED_ERROR", "returnAuthMsg": "등록되지 않은 서비스키
-- 국내 294870: curl exit 22: curl: (22) The requested URL returned error: 403
- | 응답본문: { "OpenAPI_ServiceResponse": { "cmmMsgHeader": { "errMsg": "SERVICE_KEY_IS_NOT_REGISTERED_ERROR", "returnAuthMsg": "등록되지 않은 서비스키
-- 미국 CAT: CSV 아님: <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"></head><body><noscript>T
-- 미국 PWR: CSV 아님: <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"></head><body><noscript>T
-- 미국 ACM: CSV 아님: <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"></head><body><noscript>T
-- 미국 J: CSV 아님: <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"></head><body><noscript>T
-- 미국 VMC: CSV 아님: <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"></head><body><noscript>T
-- 미국 DHI: CSV 아님: <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="robots" content="noindex,nofollow"></head><body><noscript>T
+===== kpea_recom =====
+실패: Server disconnected without sending a response.
+
+===== calspia_turnkey =====
+https://www.calspia.go.kr/portal/turnkey/selectDlbMocRcrPanMng.do → 45421 bytes, charset=utf-8
+row_selector='table tr:has(a)' → 1행 매칭
+--- 매칭 행 ---
+<tr>
+<th>주관기관</th>
+<td>
+<label for="srchDlbOrgNm">주관기관</label>
+<input class="base w70" id="srchDlbOrgNm" placeholder="주관기관" style="float:left;" type="text" value=""/>
+</td>
+<th>모집 마감일</th>
+<td>
+<label for="srchStartRcrClsDt">모집마감일 시작</label>
+<input class="base w30" id="srchStartRcrClsDt" readonly="readonly" type="text" value=""/>
+<a id="srchStartRcrClsDtCal"><img alt="달력" id="img_fr1" src="../images/sub/btn_calendar.png"/></a>
+		             ~ 
+	    			<label for="srchEndRcrClsDt">모집마감일 끝</label>
+<input class="base w30" id="srchEndRcrClsDt" readonly="readonly" type="text" value=""/>
+<a id="srchEndRcrClsDtCal"><img alt="달력" id="img_fr2" src="../images/sub/btn_calendar.png"/></a>
+</td>
+<th>제
+
+===== lh_notice =====
+https://www.lh.or.kr/board.es?mid=a10501010000&bid=0033&nPage=1 → 111618 bytes, charset=utf-8
+row_selector='table tr:has(a)' → 12행 매칭
+--- 매칭 행 ---
+<tr>
+<td aria-label="번호" class="m_hidden">
+<i class="icon_notice_01">안내</i>
+</td>
+<td aria-label="본ㆍ지사">
+					
+						본사
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+				</td>
+<td aria-label="분류"><strong>알림</strong></td>
+<td aria-label="제목" class="txt_left"><strong>
+<a href="/board.es?mid=&amp;bid=0033&amp;act=view&amp;list_no=726263&amp;nPage=1" onclick="goView2('726263'); return false;"
+--- 매칭 행 ---
+<tr>
+<td aria-label="번호" class="m_hidden">
+<i class="icon_notice_01">안내</i>
+</td>
+<td aria-label="본ㆍ지사">
+					
+						본사
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+				</td>
+<td aria-label="분류"><strong>알림</strong></td>
+<td aria-label="제목" class="txt_left"><strong>
+<a href="/board.es?mid=&amp;bid=0033&amp;act=view&amp;list_no=732549&amp;nPage=1" onclick="goView2('732549'); return false;"
+--- 매칭 행 ---
+<tr>
+<td aria-label="번호" class="m_hidden">1204</td>
+<td aria-label="본ㆍ지사">
+					
+						본사
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+						
+					
+				</td>
+<td aria-label="분류">알림</td>
+<td aria-label="제목" class="txt_left">
+<a href="#none" onclick="goView3('733891','/board.es?mid=a10501010000&amp;bid=0033&amp;act=view&amp;list_no=733891&amp;tag=&amp;nPage=1'); return false;"> <i class="xi-new"></i><s
+
+===== eminwon_gijang =====
+eminwon 'eminwon_gijang': 30건 수집
+  emw:eminwon.gijang.go.kr:52677 | 도로명주소 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52677
+  emw:eminwon.gijang.go.kr:52593 | 기장 내동마을 지구단위계획도로(소로3-251호선) 개설공사  실시계획 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52593
+  emw:eminwon.gijang.go.kr:52647 | 자동차 공매 공고 [기장군 공고 제2026-1709호] | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52647
+  emw:eminwon.gijang.go.kr:52637 | 도로명주소 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52637
+  emw:eminwon.gijang.go.kr:52628 | 지적기준점(지적삼각보조점, 도근점) 측량성과 폐기 고시 건의 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52628
+  emw:eminwon.gijang.go.kr:52585 | 월전마을 지구단위계획도로(소1-92호선)개설공사 실시계획(변경) 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52585
+  emw:eminwon.gijang.go.kr:52576 | 도시계획시설(도로:소로 1-145호선)사업 실시계획(경미한 변경) 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52576
+  emw:eminwon.gijang.go.kr:52600 | 공유수면 점용·사용 (변경)허가(협의) 및 실시계획 승인사항(준공검사 실시사항) 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52600
+  emw:eminwon.gijang.go.kr:52534 | 장안 좌천마을 도시계획시설사업(도로: 소2-719호선) 실시계획(변경) 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52534
+  emw:eminwon.gijang.go.kr:52482 | 도시계획시설사업(체육시설, 도로) 실시계획인가(변경) 고시 | https://eminwon.gijang.go.kr/emwp/gov/mogaha/ntis/web/ofr/action/OfrAction.do?jndinm=OfrNotAncmtEJB&context=NTIS&method=selectOfrNotAncmt&methodnm=selectOfrNotAncmtRegst&not_ancmt_mgt_no=52482
