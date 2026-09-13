@@ -127,7 +127,8 @@ sources:
     name: 대한토목학회 대외기관공고
     type: board
     category: committee
-    enabled: false            # 실측(2026-09): 45초에도 무응답 — GitHub 러너(해외 IP) 차단 추정.
+    enabled: false            # 실측(2026-09): httpx 45초 무응답, curl도 exit 28 타임아웃.
+                              # 전송 계층에서 끊기므로 셀렉터 문제가 아니다 — 해외 IP 차단 확진.
                               # 국내 IP 경유(릴레이/셀프호스티드 러너) 마련 시 재시도
     slots: [morning, evening]
     timeout: 45
@@ -198,7 +199,9 @@ sources:
     name: 한국기술사회 전문가 위원추천
     type: board
     category: committee
-    enabled: false            # eGov .do 구조 — verify-sources 실측 후 셀렉터 확정하고 켤 것
+    enabled: false            # 실측(2026-09): httpx "Server disconnected", curl exit 52 "Empty reply".
+                              # 연결은 되는데 서버가 응답 없이 끊는다 — 해외 IP 차단 확진.
+                              # ksce와 같은 처지라 릴레이를 놓으면 둘 다 살아난다
     slots: [morning]
     board:
       list_url: "https://www.kpea.or.kr/kpea/recom/RecomList.do?leftMenuCode=member&menu=08&sub=01"
@@ -220,7 +223,10 @@ sources:
     name: 건설사업정보시스템 심의위원 모집공고
     type: board
     category: committee
-    enabled: false            # POST 파라미터 실측 필요 — verify-sources 후 활성화
+    enabled: false            # 실측(2026-09): 페이지는 45KB로 잘 오지만 결과 테이블이 비어 있다.
+                              # table#list, table#list2가 tr=0 — 목록을 JS가 나중에 채운다(AJAX).
+                              # 서버렌더 HTML에 데이터가 없어 현재 수집기로는 불가능.
+                              # 목록을 돌려주는 실제 .do 엔드포인트를 찾아야 한다
     slots: [morning]
     board:
       list_url: "https://www.calspia.go.kr/portal/turnkey/selectDlbMocRcrPanMng.do"
@@ -238,7 +244,7 @@ sources:
     name: LH 공지사항
     type: board
     category: committee
-    enabled: false            # board.es 구조 실측 필요
+    enabled: true
     slots: [morning]
     board:
       list_url: "https://www.lh.or.kr/board.es?mid=a10501010000&bid=0033&nPage={page}"
@@ -247,10 +253,19 @@ sources:
       url_base: "https://www.lh.or.kr/"
       id_pattern: "list_no=(\\d+)"
       fields:
-        title: {selector: "a", attr: text}
-        link: {selector: "a", attr: href}
+        # 실측(2026-09): href는 전부 "#none"이고 실제 주소는 onclick 안에 있다.
+        # 12행이 셀렉터에 걸리는데도 수집물이 0건이던 이유. 공지행은 goView2,
+        # 일반행은 goView3라 숫자를 고정하지 않는다.
+        title: {selector: 'td[aria-label="제목"] a', attr: text}
+        link: {selector: 'td[aria-label="제목"] a', attr: onclick,
+               pattern: "goView\\d*\\('(\\d+)'",
+               template: "https://www.lh.or.kr/board.es?mid=a10501010000&bid=0033&act=view&list_no={value}"}
+        org: {selector: 'td:nth-of-type(2)', attr: text}
     filters:
-      keyword_include: ["위원", "모집", "평가", "심의", "자문"]
+      # 실측(2026-09): '모집'만으로는 "국민임대주택 예비입주자 통합정례모집"이 통과한다.
+      # LH 공지사항은 주택·토지 공고가 대부분이라 '위원'을 반드시 포함시킨다.
+      keyword_include: ["위원"]
+      keyword_exclude: ["입주자", "임대주택", "분양", "청약", "매입임대"]
 
   # 새올 표준 게시판 — host만 바꿔 기초지자체 추가 (아래는 예시, 실측 후 활성화)
   - id: eminwon_gijang
