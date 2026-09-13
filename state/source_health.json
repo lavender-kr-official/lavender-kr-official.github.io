@@ -36,11 +36,11 @@
   "last_error": ""
  },
  "g2b_construction": {
-  "consecutive_bad": 3,
+  "consecutive_bad": 0,
   "last_error": ""
  },
  "g2b_engineering": {
-  "consecutive_bad": 3,
+  "consecutive_bad": 0,
   "last_error": ""
  },
  "molit_notice": {
