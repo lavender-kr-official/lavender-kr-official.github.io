@@ -84,3 +84,28 @@ def test_draft_falls_back_to_collected_when_nothing_posted(tmp_path):
     content = build_draft(store, datetime.now(KST).date(), use_llm=False)
     assert "수집만 된 뉴스" in content
     store.close()
+
+
+def test_roster_never_reaches_the_public_site(tmp_path):
+    """명단 공고는 사이트에도 실리면 안 된다 — 공개 색인되는 쪽이 더 위험하다.
+
+    실측(2026-09-14): 텔레그램은 수집·표시 두 곳에서 막는데 사이트만 뚫려 있어
+    '가덕도신공항 일괄입찰 설계심의위원 명단'이 공개 페이지에 살아 있었다.
+    """
+    from src.dedup import SeenStore
+    from src.models import Item
+    from src.site_build import build_data
+
+    store = SeenStore(tmp_path / "t.db")
+    store.mark_seen(Item(source_id="molit_notice", category="committee",
+                         title="'가덕도신공항 부지조성공사' 일괄입찰 설계심의위원 명단",
+                         url="https://ex.com/1", natural_key="1", key_prefix="rss:molit_notice"),
+                    status="skipped")
+    store.mark_seen(Item(source_id="kira_news", category="committee",
+                         title="창원시 도시계획위원회 위원 공개모집 안내",
+                         url="https://ex.com/2", natural_key="2", key_prefix="board:kira_news"),
+                    status="posted")
+    data = build_data(store)
+    titles = [c["title"] for c in data["committees"]]
+    assert titles == ["창원시 도시계획위원회 위원 공개모집 안내"]
+    store.close()

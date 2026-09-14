@@ -12,6 +12,7 @@ from pathlib import Path
 
 from .config import SiteConfig
 from .deadline import extract_deadline, parse_deadline_str
+from .intent import is_postable
 from .dedup import SeenStore
 from .llm import summarize_items
 from .models import CATEGORY_META
@@ -74,6 +75,11 @@ def build_data(store: SeenStore) -> dict:
 
     for item in items:
         cat = item.get("category") or "news"
+        # 명단·위촉 결과는 사이트에도 싣지 않는다. 텔레그램은 수집·표시 두 곳에서
+        # 막는데 사이트만 뚫려 있었다 — 공개 색인되는 쪽이라 더 위험한 누출이다.
+        # 지원할 수 없는 정보이고 사람 이름이 들어 있다.
+        if not is_postable(item.get("title") or ""):
+            continue
         if cat == "committee":
             deadline = _item_deadline(item)
             seen = _first_seen_date(item) or today
