@@ -20,7 +20,7 @@
   "last_error": ""
  },
  "molit": {
-  "consecutive_bad": 1,
+  "consecutive_bad": 2,
   "last_error": "'molit' 피드 요청 실패: timed out"
  },
  "ksce_external": {
@@ -36,15 +36,15 @@
   "last_error": ""
  },
  "g2b_construction": {
-  "consecutive_bad": 1,
+  "consecutive_bad": 2,
   "last_error": "나라장터 접근 불가 (direct·relay 모두 실패) — docs/setup-worker-relay.md 참조"
  },
  "g2b_engineering": {
-  "consecutive_bad": 1,
+  "consecutive_bad": 2,
   "last_error": "나라장터 접근 불가 (direct·relay 모두 실패) — docs/setup-worker-relay.md 참조"
  },
  "molit_notice": {
-  "consecutive_bad": 1,
+  "consecutive_bad": 2,
   "last_error": "'molit_notice' 피드 요청 실패: timed out"
  },
  "lh_notice": {
